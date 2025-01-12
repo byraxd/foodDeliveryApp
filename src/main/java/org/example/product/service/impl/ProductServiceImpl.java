@@ -9,6 +9,7 @@ import org.example.product.service.ProductService;
 import org.example.utils.ValidateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -64,6 +65,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public Product updateById(Long id, ProductDto productDto) {
         log.info("Updating product: {}, by id: {}", productDto, id);
 
@@ -86,6 +88,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         log.info("Deleting product: {}", id);
 
