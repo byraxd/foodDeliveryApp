@@ -37,10 +37,14 @@ public class Order {
     private List<Product> products;
 
     @Column(nullable = false)
-    private Instant createdAt;
+    private Double totalPrice;
 
     @Column(nullable = false)
-    private Instant deliveredAt;
+    private Boolean paid;
 
+    @Column(nullable = false)
+    private Instant createdAt;
+
+    private Instant deliveredAt;
 
 }
