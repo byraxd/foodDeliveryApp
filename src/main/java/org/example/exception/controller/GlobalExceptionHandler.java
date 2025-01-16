@@ -1,9 +1,6 @@
 package org.example.exception.controller;
 
-import org.example.exception.model.ClientNotFoundException;
-import org.example.exception.model.NotEnoughMoneyExceptions;
-import org.example.exception.model.OrderNotFoundException;
-import org.example.exception.model.ProductNotFoundException;
+import org.example.exception.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -35,5 +32,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotEnoughMoneyExceptions.class)
     public ResponseEntity<String> handleNotEnoughMoney(NotEnoughMoneyExceptions ex){
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.PAYMENT_REQUIRED);
+    }
+
+    @ExceptionHandler(FeedbackNotFoundException.class)
+    public ResponseEntity<String> handleFeedbackNotFound(FeedbackNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

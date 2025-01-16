@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.feedback.model.Feedback;
 import org.example.order.model.Order;
 
 import java.util.List;
@@ -42,5 +43,7 @@ public class Client {
     @JsonManagedReference
     private List<Order> orders;
 
-
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference
+    private List<Feedback> feedbacks;
 }
