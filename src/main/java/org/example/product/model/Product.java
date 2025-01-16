@@ -1,10 +1,14 @@
 package org.example.product.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.feedback.model.Feedback;
+
+import java.util.List;
 
 @Entity
 @Builder
@@ -35,5 +39,9 @@ public class Product {
 
     @Column(nullable = false, unique = true)
     private String imageUrl;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference
+    private List<Feedback> feedbacks;
 
 }
