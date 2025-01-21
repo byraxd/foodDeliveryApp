@@ -61,7 +61,7 @@ public class ProductServiceImplTest {
 
         Mockito.verify(productRepository, Mockito.times(1)).findAll();
     }
-    
+
     @Test
     void test_getById_shouldReturnProduct_ifProductExists(){
         Long id = 1L;

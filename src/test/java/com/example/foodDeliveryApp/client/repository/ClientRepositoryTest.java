@@ -1,5 +1,6 @@
 package com.example.foodDeliveryApp.client.repository;
 
+
 import com.example.foodDeliveryApp.client.model.Client;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -24,10 +25,9 @@ public class ClientRepositoryTest {
     public void setUp() {
         client = Client
                 .builder()
-                .id(1L)
-                .username("test")
-                .password("test")
-                .email("test@test.com")
+                .username("Client username")
+                .password("Client password")
+                .email("email@test.com")
                 .phone("123456789")
                 .walletBalance(10.00)
                 .build();
@@ -39,60 +39,55 @@ public class ClientRepositoryTest {
     }
 
     @Test
-    void test_findAll_shouldReturnAllClients() {
-        clientRepository.save(client);
+    void givenClientObject_whenSave_thenReturnSavedClient() {
+        Client savedClient = clientRepository.save(client);
+
+        Client foundClient = clientRepository.findById(savedClient.getId()).get();
+
+        Assertions.assertNotNull(foundClient);
+        Assertions.assertEquals(savedClient.getUsername(), foundClient.getUsername());
+        Assertions.assertEquals(savedClient.getPassword(), foundClient.getPassword());
+        Assertions.assertEquals(savedClient.getEmail(), foundClient.getEmail());
+    }
+
+    @Test
+    void giveClientObject_whenFindById_thenReturnClient() {
+        Client savedClient = clientRepository.save(client);
+
+        Client result = clientRepository.findById(savedClient.getId()).get();
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(savedClient.getUsername(), result.getUsername());
+        Assertions.assertEquals(savedClient.getPassword(), result.getPassword());
+        Assertions.assertEquals(savedClient.getEmail(), result.getEmail());
+    }
+
+    @Test
+    void givenClientObject_whenFindAll_thenReturnAllClients() {
+        Client savedClient =clientRepository.save(client);
 
         List<Client> clients = clientRepository.findAll();
 
         Assertions.assertNotNull(clients);
         Assertions.assertEquals(1, clients.size());
+        Assertions.assertEquals(savedClient.getUsername(), clients.get(0).getUsername());
 
     }
 
     @Test
-    void test_findById_shouldReturnClient() {
+    void givenClientObject_whenDelete() {
         Client savedClient = clientRepository.save(client);
-
-        Client result = clientRepository.findById(savedClient.getId()).get();
-
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(savedClient.getId(), result.getId());
-    }
-
-    @Test
-    void test_save_shouldSaveClient() {
-        Client savedClient = clientRepository.save(client);
-
-        Client result = clientRepository.findById(savedClient.getId()).get();
-
-        Assertions.assertNotNull(result);
-
-        Assertions.assertEquals(result.getId(), savedClient.getId());
-        Assertions.assertEquals(result.getUsername(), savedClient.getUsername());
-        Assertions.assertEquals(result.getPassword(), savedClient.getPassword());
-        Assertions.assertEquals(result.getEmail(), savedClient.getEmail());
-        Assertions.assertEquals(result.getPhone(), savedClient.getPhone());
-        Assertions.assertEquals(result.getWalletBalance(), savedClient.getWalletBalance());
-    }
-
-    @Test
-    void test_delete_shouldDeleteClient() {
-        Client savedClient = clientRepository.save(client);
-
-        List<Client> clientsBeforeDeleting = clientRepository.findAll();
 
         clientRepository.delete(savedClient);
 
-        List<Client> clientsAfterDeleting = clientRepository.findAll();
+        List<Client> savedClients = clientRepository.findAll();
 
-        Assertions.assertNotNull(clientsBeforeDeleting);
-        Assertions.assertNotNull(clientsAfterDeleting);
-
-        Assertions.assertTrue(clientsBeforeDeleting.size() > clientsAfterDeleting.size());
+        Assertions.assertNotNull(savedClients);
+        Assertions.assertEquals(0, savedClients.size());
     }
 
     @Test
-    void test_update_shouldUpdateClient() {
+    void givenClientObject_whenUpdate_thenReturnUpdatedClient() {
         Client savedClient = clientRepository.save(client);
 
         Client clientForUpdate = clientRepository.findById(savedClient.getId()).get();
