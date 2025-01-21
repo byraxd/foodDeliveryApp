@@ -1,5 +1,6 @@
 package com.example.foodDeliveryApp.product.repository;
 
+import com.example.foodDeliveryApp.client.repository.ClientRepository;
 import com.example.foodDeliveryApp.product.model.Product;
 import com.example.foodDeliveryApp.product.model.ProductType;
 import org.junit.jupiter.api.AfterEach;
@@ -20,6 +21,8 @@ public class ProductRepositoryTest {
     private ProductRepository productRepository;
 
     private Product product;
+    @Autowired
+    private ClientRepository clientRepository;
 
     @BeforeEach
     void setUp() {
@@ -43,10 +46,12 @@ public class ProductRepositoryTest {
     void givenProductObject_whenSave_thenReturnSavedProduct() {
         Product savedProduct = productRepository.save(product);
 
-        Assertions.assertNotNull(savedProduct);
-        Assertions.assertEquals(product.getName(), savedProduct.getName());
-        Assertions.assertEquals(product.getDescription(), savedProduct.getDescription());
-        Assertions.assertEquals(product.getPrice(), savedProduct.getPrice());
+        Product foundProduct = productRepository.findById(savedProduct.getId()).get();
+
+        Assertions.assertNotNull(foundProduct);
+        Assertions.assertEquals(savedProduct.getName(), foundProduct.getName());
+        Assertions.assertEquals(savedProduct.getDescription(), foundProduct.getDescription());
+        Assertions.assertEquals(savedProduct.getPrice(), foundProduct.getPrice());
     }
 
     @Test
@@ -88,12 +93,17 @@ public class ProductRepositoryTest {
     void givenProductObject_whenUpdate_thenReturnUpdatedProduct() {
         Product savedProduct = productRepository.save(product);
 
-        Product foundedProduct = productRepository.findById(product.getId()).get();
-        savedProduct.setDescription("Updated Description");
-        Product updatedProduct = productRepository.save(savedProduct);
+        Product productForUpdate = productRepository.findById(product.getId()).get();
 
-        Assertions.assertNotNull(updatedProduct);
-        Assertions.assertEquals(savedProduct.getName(), updatedProduct.getName());
+        productForUpdate.setName("Updated Product Name");
+        productForUpdate.setDescription("Updated Product Description");
+
+        productRepository.save(savedProduct);
+        Product result = productRepository.findById(savedProduct.getId()).get();
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(savedProduct.getName(), result.getName());
+        Assertions.assertEquals(savedProduct.getDescription(), result.getDescription());
 
     }
 }

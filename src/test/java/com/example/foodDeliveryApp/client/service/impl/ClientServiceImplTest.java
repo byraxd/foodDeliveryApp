@@ -1,5 +1,6 @@
 package com.example.foodDeliveryApp.client.service.impl;
 
+
 import com.example.foodDeliveryApp.client.dto.ClientDto;
 import com.example.foodDeliveryApp.client.model.Client;
 import com.example.foodDeliveryApp.client.repository.ClientRepository;
@@ -54,6 +55,7 @@ public class ClientServiceImplTest {
 
     @Test
     void test_getAll_shouldReturnListOfAllClients(){
+
         List<Client> allClient = List.of(firstClient, secondClient);
 
         Mockito.when(clientRepository.findAll()).thenReturn(allClient);
