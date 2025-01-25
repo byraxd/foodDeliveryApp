@@ -21,8 +21,6 @@ public class ProductRepositoryTest {
     private ProductRepository productRepository;
 
     private Product product;
-    @Autowired
-    private ClientRepository clientRepository;
 
     @BeforeEach
     void setUp() {
@@ -35,7 +33,6 @@ public class ProductRepositoryTest {
                 .available(true)
                 .imageUrl("Product Image")
                 .build();
-
     }
     @AfterEach
     void tearDown() {

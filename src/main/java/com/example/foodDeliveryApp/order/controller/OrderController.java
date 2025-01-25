@@ -45,7 +45,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/pay")
-    public ResponseEntity<Order> payOrder(@PathVariable Long id, @RequestBody OrderDto orderDto) {
+    public ResponseEntity<Order> payOrder(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.payForOrderById(id));
     }
 }
