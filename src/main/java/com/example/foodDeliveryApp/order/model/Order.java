@@ -24,7 +24,7 @@ public class Order {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id")
     @JsonBackReference
     private Client client;
 
