@@ -6,6 +6,8 @@ import com.example.foodDeliveryApp.client.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,5 +44,14 @@ public class ClientController {
         clientService.deleteById(id);
 
         return ResponseEntity.ok("Client deleted successfully");
+    }
+
+    @GetMapping("/authClient")
+    public ResponseEntity<Client> getAuthClient() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        Client currentClient = (Client) auth.getPrincipal();
+
+        return ResponseEntity.ok(currentClient);
     }
 }

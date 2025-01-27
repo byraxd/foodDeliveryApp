@@ -8,5 +8,6 @@ public record ClientDto(
         String password,
         String email,
         String phone,
-        Double walletBalance) {
+        Double walletBalance,
+        String role) {
 }
