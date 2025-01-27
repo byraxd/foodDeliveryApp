@@ -4,6 +4,7 @@ import com.example.foodDeliveryApp.client.dto.ClientDto;
 import com.example.foodDeliveryApp.client.model.Client;
 import com.example.foodDeliveryApp.client.repository.ClientRepository;
 import com.example.foodDeliveryApp.client.service.ClientService;
+import com.example.foodDeliveryApp.config.SecurityConfig;
 import com.example.foodDeliveryApp.exception.model.ClientNotFoundException;
 import com.example.foodDeliveryApp.utils.ValidateUtils;
 import lombok.extern.slf4j.Slf4j;
