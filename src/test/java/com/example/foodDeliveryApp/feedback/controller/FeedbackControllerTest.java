@@ -4,13 +4,17 @@ import com.example.foodDeliveryApp.client.model.Client;
 import com.example.foodDeliveryApp.feedback.dto.FeedbackDto;
 import com.example.foodDeliveryApp.feedback.model.Feedback;
 import com.example.foodDeliveryApp.feedback.service.FeedbackService;
+import com.example.foodDeliveryApp.jwt.service.impl.JwtService;
 import com.example.foodDeliveryApp.product.model.Product;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -20,13 +24,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(FeedbackController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class FeedbackControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private FeedbackService feedbackService;
+
+    @MockBean
+    private JwtService jwtService;
 
     private Feedback feedback;
 
@@ -67,19 +78,19 @@ public class FeedbackControllerTest {
 
     @Test
     void test_createFeedback() throws Exception {
-        String jsonFeedback = """
-                {
-                "text": "text",
-                "rating": "10",
-                "client": {"username": "name of client"},
-                "product": {"name": "name of Product"}
-                }
-                """;
+        Feedback feedbackForJson = Feedback
+                .builder()
+                .text("text")
+                .rating(10)
+                .client(Client.builder().username("name of client").build())
+                .product(Product.builder().name("name of Product").build())
+                .build();
+        String jsonFeedback = objectMapper.writeValueAsString(feedbackForJson);
 
         Mockito.when(feedbackService.save(Mockito.any(FeedbackDto.class))).thenReturn(feedback);
 
         mockMvc.perform(post("/api/feedbacks")
-                .contentType("application/json")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonFeedback))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.text").value(feedback.getText()))
@@ -91,19 +102,19 @@ public class FeedbackControllerTest {
     @Test
     void test_updateFeedback() throws Exception {
         Long id = 1L;
-        String jsonFeedback = """
-                {
-                "text": "text {UPDATED}",
-                "rating": "10",
-                "client": {"username": "name of client"},
-                "product": {"name": "name of Product"}
-                }
-                """;
+        Feedback feedbackForJson = Feedback
+                .builder()
+                .text("text{UPDATED}")
+                .rating(10)
+                .client(Client.builder().username("name of client").build())
+                .product(Product.builder().name("name of Product").build())
+                .build();
+        String jsonFeedback = objectMapper.writeValueAsString(feedbackForJson);
 
         Mockito.when(feedbackService.updateById(Mockito.eq(id), Mockito.any(FeedbackDto.class))).thenReturn(feedback);
 
         mockMvc.perform(put("/api/feedbacks/{id}", id)
-                .contentType("application/json")
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonFeedback))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.text").value(feedback.getText()))

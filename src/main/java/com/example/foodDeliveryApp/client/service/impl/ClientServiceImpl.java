@@ -4,11 +4,11 @@ import com.example.foodDeliveryApp.client.dto.ClientDto;
 import com.example.foodDeliveryApp.client.model.Client;
 import com.example.foodDeliveryApp.client.repository.ClientRepository;
 import com.example.foodDeliveryApp.client.service.ClientService;
-import com.example.foodDeliveryApp.config.SecurityConfig;
 import com.example.foodDeliveryApp.exception.model.ClientNotFoundException;
 import com.example.foodDeliveryApp.utils.ValidateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +16,14 @@ import java.util.List;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = "clients")
 public class ClientServiceImpl implements ClientService {
 
     @Autowired
     private ClientRepository clientRepository;
 
     @Override
+    @Cacheable
     public List<Client> getAll() {
         log.info("Fetching all clients");
 
@@ -32,6 +34,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Cacheable(key = "#id")
     public Client getById(Long id) {
         log.info("Fetching client with id: {}", id);
 
@@ -44,6 +47,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @CacheEvict(allEntries = true)
     public Client save(ClientDto clientDto) {
         log.info("Saving client: {}", clientDto);
 
@@ -66,6 +70,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional
+    @Caching(put = {@CachePut(key = "#result.getId()")}, evict = {@CacheEvict(allEntries = true)})
     public Client updateById(Long id, ClientDto clientDto) {
         log.info("Updating client: {}, by id: {}", clientDto, id);
 
@@ -87,12 +92,14 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(allEntries = true)
     public void deleteById(Long id) {
         log.info("Deleting client: {}", id);
 
         ValidateUtils.validateId(id);
 
-        if(!clientRepository.existsById(id)) {
+        if (!clientRepository.existsById(id)) {
             log.error("Client is not exists in database: {}", id);
             throw new ClientNotFoundException("Client with id " + id + " not found");
         }

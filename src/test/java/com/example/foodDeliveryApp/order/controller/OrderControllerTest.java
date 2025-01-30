@@ -1,16 +1,20 @@
 package com.example.foodDeliveryApp.order.controller;
 
 import com.example.foodDeliveryApp.client.model.Client;
+import com.example.foodDeliveryApp.jwt.service.impl.JwtService;
 import com.example.foodDeliveryApp.order.dto.OrderDto;
 import com.example.foodDeliveryApp.order.model.Order;
 import com.example.foodDeliveryApp.order.service.OrderService;
 import com.example.foodDeliveryApp.product.model.Product;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -20,13 +24,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(OrderController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class OrderControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private OrderService orderService;
+
+    @MockBean
+    private JwtService jwtService;
 
     private Order order;
 
@@ -67,20 +78,20 @@ public class OrderControllerTest {
 
     @Test
     void test_createOrder() throws Exception {
-        String jsonOrder = """
-                {
-                "client": {"username": "client username", "email": "client email"},
-                "paid": false,
-                "products": [{"name": "First Product", "price": 10.00},{"name": "Second Product", "price": 20.00}],
-                "totalPrice": 30.00
-                }
-                """;
+        Order orderForJson = Order
+                .builder()
+                .client(Client.builder().username("client username").email("client email").build())
+                .paid(false)
+                .products(List.of(Product.builder().name("First Product").price(10.00).build(), Product.builder().name("Second Product").price(20.00).build()))
+                .totalPrice(30.00)
+                .build();
+        String orderJson = objectMapper.writeValueAsString(orderForJson);
 
         Mockito.when(orderService.save(Mockito.any(OrderDto.class))).thenReturn(order);
 
         mockMvc.perform(post("/api/orders")
-                .contentType("application/json")
-                .content(jsonOrder))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(orderJson))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.paid").value(false))
                 .andExpect(jsonPath("$.totalPrice").value(30.00));
@@ -92,22 +103,23 @@ public class OrderControllerTest {
     void test_updateOrder() throws Exception {
         Long id = 1L;
 
-        String jsonOrder = """
-                {
-                "client": {"username": "client username", "email": "client email"},
-                "paid": true,
-                "products": [{"name": "First Product", "price": 10.00},{"name": "Second Product", "price": 20.00}],
-                "totalPrice": 10.00
-                }
-                """;
+        Order orderForJson = Order
+                .builder()
+                .client(Client.builder().username("client username").email("client email").build())
+                .paid(true)
+                .products(List.of(Product.builder().name("First Product").price(10.00).build(), Product.builder().name("Second Product").price(20.00).build()))
+                .totalPrice(10.00)
+                .build();
+        String orderJson = objectMapper.writeValueAsString(orderForJson);
+
         order.setPaid(true);
         order.setTotalPrice(10.00);
 
         Mockito.when(orderService.updateById(Mockito.eq(id), Mockito.any(OrderDto.class))).thenReturn(order);
 
         mockMvc.perform(put("/api/orders/{id}", id)
-                .contentType("application/json")
-                .content(jsonOrder))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(orderJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paid").value(true))
                 .andExpect(jsonPath("$.totalPrice").value(10.00));
