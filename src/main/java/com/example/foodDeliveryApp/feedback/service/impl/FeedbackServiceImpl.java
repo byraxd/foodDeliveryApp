@@ -14,6 +14,7 @@ import com.example.foodDeliveryApp.product.repository.ProductRepository;
 import com.example.foodDeliveryApp.utils.ValidateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = "feedbacks")
 public class FeedbackServiceImpl implements FeedbackService {
 
     @Autowired
@@ -33,6 +35,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private ProductRepository productRepository;
 
     @Override
+    @Cacheable
     public List<Feedback> getAll() {
         log.info("Fetching all feedbacks");
 
@@ -43,6 +46,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
+    @Cacheable(key = "#id")
     public Feedback getById(Long id) {
         log.info("Fetching feedback by id: {}", id);
 
@@ -55,7 +59,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    @Transactional
+    @CacheEvict(allEntries = true)
     public Feedback save(FeedbackDto feedbackDto) {
         log.info("Saving feedback: {}", feedbackDto);
 
@@ -77,6 +81,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     @Transactional
+    @Caching(put = {@CachePut(key = "#result.getId()")}, evict = {@CacheEvict(allEntries = true)})
     public Feedback updateById(Long id, FeedbackDto feedbackDto) {
         log.info("Updating feedback: {}", feedbackDto);
 
@@ -98,6 +103,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     @Transactional
+    @CacheEvict(allEntries = true)
     public void deleteById(Long id) {
         log.info("Deleting feedback: {}", id);
 

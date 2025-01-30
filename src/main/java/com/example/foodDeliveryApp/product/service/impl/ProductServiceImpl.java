@@ -8,6 +8,7 @@ import com.example.foodDeliveryApp.product.service.ProductService;
 import com.example.foodDeliveryApp.utils.ValidateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,12 +16,14 @@ import java.util.List;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = "products")
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
 
     @Override
+    @Cacheable
     public List<Product> getAll() {
         log.info("Fetching all products");
 
@@ -31,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(key = "#id")
     public Product getById(Long id) {
         log.info("Fetching product by id: {}", id);
 
@@ -43,6 +47,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @CacheEvict(allEntries = true)
     public Product save(ProductDto productDto) {
         log.info("Saving product: {}", productDto);
 
@@ -66,6 +71,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @Caching(put = {
+            @CachePut(key = "#result.getId()")
+    },
+            evict = {
+                    @CacheEvict(allEntries = true)
+            })
     public Product updateById(Long id, ProductDto productDto) {
         log.info("Updating product: {}, by id: {}", productDto, id);
 
@@ -89,6 +100,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CacheEvict(allEntries = true)
     public void deleteById(Long id) {
         log.info("Deleting product: {}", id);
 

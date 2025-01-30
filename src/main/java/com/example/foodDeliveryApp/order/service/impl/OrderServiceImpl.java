@@ -14,6 +14,7 @@ import com.example.foodDeliveryApp.product.repository.ProductRepository;
 import com.example.foodDeliveryApp.utils.ValidateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = "orders")
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
@@ -34,6 +36,7 @@ public class OrderServiceImpl implements OrderService {
     private ProductRepository productRepository;
 
     @Override
+    @Cacheable
     public List<Order> getAll() {
         log.info("Fetching all orders");
 
@@ -44,6 +47,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Cacheable(key = "#id")
     public Order getById(Long id) {
         log.info("Fetching order by id: {}", id);
 
@@ -57,6 +61,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CacheEvict(allEntries = true)
     public Order save(OrderDto orderDto) {
         log.info("Saving order: {}", orderDto);
 
@@ -81,6 +86,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @Caching(put = {@CachePut(key = "#result.getId()")}, evict = {@CacheEvict(allEntries = true)})
     public Order updateById(Long id, OrderDto orderDto) {
         log.info("Updating order {}, by id: {}", orderDto, id);
 
@@ -104,6 +110,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CacheEvict(allEntries = true)
     public void deleteById(Long id) {
         log.info("Deleting order: {}", id);
 
@@ -120,6 +127,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @Caching(put = {@CachePut(key = "#result.getId()")}, evict = {@CacheEvict(allEntries = true)})
     public Order payForOrderById(Long id) {
         log.info("Paying order by id: {}", id);
 

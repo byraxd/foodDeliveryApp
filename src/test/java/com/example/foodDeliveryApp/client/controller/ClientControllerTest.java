@@ -3,12 +3,16 @@ package com.example.foodDeliveryApp.client.controller;
 import com.example.foodDeliveryApp.client.dto.ClientDto;
 import com.example.foodDeliveryApp.client.model.Client;
 import com.example.foodDeliveryApp.client.service.ClientService;
+import com.example.foodDeliveryApp.jwt.service.impl.JwtService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -18,13 +22,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ClientController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class ClientControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
+    private JwtService jwtService;
+
+    @MockBean
     private ClientService clientService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Client client;
 
@@ -36,11 +47,14 @@ public class ClientControllerTest {
                 .password("Client password")
                 .email("Client email")
                 .build();
+
+        this.objectMapper = new ObjectMapper();
     }
 
     @Test
     void test_getAllClients() throws Exception {
         Mockito.when(clientService.getAll()).thenReturn(List.of(client));
+
 
         mockMvc.perform(get("/api/clients"))
                 .andExpect(status().isOk())
@@ -68,19 +82,14 @@ public class ClientControllerTest {
 
     @Test
     void test_saveClient() throws Exception {
-        String clientJson = """
-                    {
-                        "username": "Client username",
-                        "password": "Client password",
-                        "email": "Client email"
-                    }
-                """;
+        Client clientForJson = Client.builder().username("Client username").password("Client password").email("Client email").build();
+        String jsonClient = objectMapper.writeValueAsString(clientForJson);
 
         Mockito.when(clientService.save(Mockito.any(ClientDto.class))).thenReturn(client);
 
         mockMvc.perform(post("/api/clients")
-                .contentType("application/json")
-                .content(clientJson))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonClient))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username").value(client.getUsername()))
                 .andExpect(jsonPath("$.password").value(client.getPassword()))
@@ -93,13 +102,8 @@ public class ClientControllerTest {
     void test_updateClient() throws Exception {
         Long id = 1L;
 
-        String clientJson = """
-                    {
-                        "username": "Client username{updated}",
-                        "password": "Client password",
-                        "email": "Client email"
-                    }
-                """;
+        Client clientForJson = Client.builder().username("Client username{updated}").password("Client password").email("Client email").build();
+        String jsonClient = objectMapper.writeValueAsString(clientForJson);
 
         client.setUsername("Client username{updated}");
         client.setPassword("Client password");
@@ -108,8 +112,8 @@ public class ClientControllerTest {
         Mockito.when(clientService.updateById(Mockito.eq(id), Mockito.any(ClientDto.class))).thenReturn(client);
 
         mockMvc.perform(put("/api/clients/{id}", id)
-                .contentType("application/json")
-                .content(clientJson))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonClient))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(client.getUsername()))
                 .andExpect(jsonPath("$.password").value(client.getPassword()))

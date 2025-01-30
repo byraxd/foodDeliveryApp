@@ -1,15 +1,19 @@
 package com.example.foodDeliveryApp.product.controller;
 
+import com.example.foodDeliveryApp.jwt.service.impl.JwtService;
 import com.example.foodDeliveryApp.product.dto.ProductDto;
 import com.example.foodDeliveryApp.product.model.Product;
 import com.example.foodDeliveryApp.product.model.ProductType;
 import com.example.foodDeliveryApp.product.service.ProductService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -19,13 +23,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class ProductControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private ProductService productService;
+
+    @MockBean
+    private JwtService jwtService;
 
     private Product product;
 
@@ -72,20 +83,20 @@ public class ProductControllerTest {
 
     @Test
     void test_saveProduct() throws Exception {
-        String productJson = """
-        {
-            "name": "First product",
-            "productType": "PIZZA",
-            "description": "First product",
-            "price": 10.0
-        }
-    """;
+        Product productForJson = Product
+                .builder()
+                .name("First product")
+                .type(ProductType.PIZZA)
+                .description("First product")
+                .price(10.0)
+                .build();
+        String jsonProduct = objectMapper.writeValueAsString(productForJson);
 
         Mockito.when(productService.save(Mockito.any(ProductDto.class))).thenReturn(product);
 
         mockMvc.perform(post("/api/products")
-                .contentType("application/json")
-                .content(productJson))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonProduct))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value(product.getName()))
                 .andExpect(jsonPath("$.type").value(product.getType().toString()))
@@ -99,14 +110,14 @@ public class ProductControllerTest {
     void test_updateProduct() throws Exception {
         Long id = 1L;
 
-        String productJson = """
-        {
-            "name": "First product{Updated}",
-            "productType": "PIZZA",
-            "description": "First product{Updated}",
-            "price": 10.0
-        }
-    """;
+        Product productForJson = Product
+                .builder()
+                .name("First product{Updated}")
+                .type(ProductType.PIZZA)
+                .description("First product{Updated}")
+                .price(10.0)
+                .build();
+        String jsonProduct = objectMapper.writeValueAsString(productForJson);
 
         product.setName("First product{Updated}");
         product.setType(ProductType.PIZZA);
@@ -116,8 +127,8 @@ public class ProductControllerTest {
         Mockito.when(productService.updateById(Mockito.eq(id), Mockito.any(ProductDto.class))).thenReturn(product);
 
         mockMvc.perform(put("/api/products/{id}", id)
-                        .contentType("application/json")
-                        .content(productJson))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonProduct))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(product.getName()))
                 .andExpect(jsonPath("$.description").value(product.getDescription()));
