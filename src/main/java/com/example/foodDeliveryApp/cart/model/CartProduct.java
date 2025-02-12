@@ -1,8 +1,6 @@
-package com.example.foodDeliveryApp.feedback.model;
+package com.example.foodDeliveryApp.cart.model;
 
-import com.example.foodDeliveryApp.client.model.Client;
 import com.example.foodDeliveryApp.product.model.Product;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
@@ -13,29 +11,26 @@ import lombok.*;
         property = "@id"
 )
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Table(name = "feedback")
-public class Feedback {
+@Table(name = "cart_products")
+public class CartProduct {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Integer rating;
-
-    @Column(nullable = false)
-    private String text;
-
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cart;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @Column(nullable = false)
+    private Integer quantity;
 }

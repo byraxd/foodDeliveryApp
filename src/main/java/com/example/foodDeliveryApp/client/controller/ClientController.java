@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -47,11 +48,7 @@ public class ClientController {
     }
 
     @GetMapping("/authClient")
-    public ResponseEntity<Client> getAuthClient() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        Client currentClient = (Client) auth.getPrincipal();
-
-        return ResponseEntity.ok(currentClient);
+    public ResponseEntity<Client> getAuthClient(Principal principal) {
+        return ResponseEntity.ok(clientService.findByEmail(principal.getName()));
     }
 }

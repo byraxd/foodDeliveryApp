@@ -1,41 +1,37 @@
-package com.example.foodDeliveryApp.feedback.model;
+package com.example.foodDeliveryApp.cart.model;
 
 import com.example.foodDeliveryApp.client.model.Client;
-import com.example.foodDeliveryApp.product.model.Product;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
+
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.IntSequenceGenerator.class,
         property = "@id"
 )
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Table(name = "feedback")
-public class Feedback {
+@Table(name = "carts")
+public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Integer rating;
-
-    @Column(nullable = false)
-    private String text;
-
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CartProduct> cartProducts;
+
 }
