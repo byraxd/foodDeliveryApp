@@ -3,6 +3,8 @@ package com.example.foodDeliveryApp.order.model;
 import com.example.foodDeliveryApp.client.model.Client;
 import com.example.foodDeliveryApp.product.model.Product;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +13,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
-
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.IntSequenceGenerator.class,
+        property = "@id"
+)
 @Entity
 @Builder
 @Data
@@ -25,7 +30,6 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "client_id")
-    @JsonBackReference
     private Client client;
 
     @ManyToMany

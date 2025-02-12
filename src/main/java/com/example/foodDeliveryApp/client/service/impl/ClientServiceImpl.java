@@ -108,6 +108,19 @@ public class ClientServiceImpl implements ClientService {
         log.info("Successfully deleted client: {}", id);
     }
 
+    @Override
+    public Client findByEmail(String email) {
+        log.info("Fetching client with email: {}", email);
+
+        Client client = clientRepository.findByEmail(email).orElseThrow(() -> {
+            log.error("Client with email {} not found", email);
+            return new ClientNotFoundException("Client with email " + email + " not found");
+        });
+
+        log.info("Successfully fetched client by email: {}", client);
+        return client;
+    }
+
     private Client findClientById(Long id) {
         return clientRepository.findById(id).orElseThrow(() -> {
             log.error("Client with id {} not found", id);

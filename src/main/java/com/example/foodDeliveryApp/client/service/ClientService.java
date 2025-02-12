@@ -17,4 +17,6 @@ public interface ClientService {
     Client updateById(Long id, ClientDto clientDto);
 
     void deleteById(Long id);
+
+    Client findByEmail(String email);
 }
